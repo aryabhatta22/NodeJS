@@ -57,7 +57,15 @@
 
 const http = require('http');
 const url = require('url');
+const fs = require('fs');
 
+//this is the top level code and needs to be called only once hence blocking code style is used
+const data = fs.readFileSync(`${__dirname}/data.json`, 'utf-8');
+const dataObject = JSON.parse(data);
+
+
+
+  //this will called at evrey routes 
 const server = http.createServer((req, res) => {
   // console.log(req.url);   // will provide url requested in each routes
 
@@ -65,6 +73,11 @@ const server = http.createServer((req, res) => {
 
   if(pathname==='/' || pathname=== '/home')
     res.end("This is the  Home page");
+  else if (pathname === '/api') {
+      res.writeHead(200, {'Content-type': 'application/json'});
+      res.end(data);
+ 
+  }
   else {
     res.writeHead(404, {
       'Content-type': 'text/hmtl',
@@ -72,7 +85,7 @@ const server = http.createServer((req, res) => {
     });
     res.end("<h1> Welcome to home page <h1>");
   }
-  res.end("Hello from the server");
+
 });
 
 server.listen(3000, '127.0.0.1', () => {
