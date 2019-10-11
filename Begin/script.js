@@ -53,14 +53,33 @@
 //   console.log("Listening to port 3000");
 // });
 
-// <=========== Routing using url ===========>
+// <=========== Routing using url  & creating simple API===========>
 
 const http = require('http');
 const url = require('url');
 const fs = require('fs');
 
+const replaceTemplate = ( temp, product ) => {
+  let output = temp.replace(/{%PRODUCTNAME%}/g , product.productName); // /{%PRODUCTNAME%}/g is regular expression to replace all placeholder not just the first one
+  output = output.replace(/{%IMAGE%}/g , product.image);
+  output = output.replace(/{%PRICE%}/g , product.price);
+  output = output.replace(/{%FROM%}/g , product.from);
+  output = output.replace(/{%NUTRIENTS%}/g , product.nutrients);
+  output = output.replace(/{%QUANTITY%}/g , product.quantity);
+  output = output.replace(/{%DESCRIPTION%}/g , product.description);
+  output = output.replace(/{%ID%}/g , product.id);
+
+  if(!product.organic) output = output.replace(/{%NOT_ORGANIC%}/g ,  'not-organic');
+  return output;
+}
+
 //this is the top level code and needs to be called only once hence blocking code style is used
+const Overview = fs.readFileSync(`${__dirname}/Overview.html`, 'utf-8');
+const Card = fs.readFileSync(`${__dirname}/Card.html`, 'utf-8');
+const Product = fs.readFileSync(`${__dirname}/Product.html`, 'utf-8');
+
 const data = fs.readFileSync(`${__dirname}/data.json`, 'utf-8');
+
 const dataObject = JSON.parse(data);
 
 
@@ -71,19 +90,33 @@ const server = http.createServer((req, res) => {
 
   const pathname=req.url;
 
-  if(pathname==='/' || pathname=== '/home')
-    res.end("This is the  Home page");
+  //Home
+  if(pathname==='/' || pathname=== '/overview') {
+    res.writeHead(200, { 'Content-type': 'text/html'});
+    const cardsHtml = dataObject.map( el => replaceTemplate(Card, el)).join('');   //this will loop through api and map to an array having each
+                                                                              // cards in array. Func replaceTemplaate is defined above                                                    
+    const output = Overview.replace('{%PRODUCT_CARDS%}', cardsHtml);
+    res.end(output);
+
+  //Product
+  }
+  else if(pathname === '/product') {
+    res.end('This is the Product page');
+
+  //API
+  }
   else if (pathname === '/api') {
       res.writeHead(200, {'Content-type': 'application/json'});
       res.end(data);
- 
+  
+  //Not found
   }
   else {
     res.writeHead(404, {
       'Content-type': 'text/hmtl',
       'my_own_header': 'hello world'
     });
-    res.end("<h1> Welcome to home page <h1>");
+    res.end("Page not found!!");
   }
 
 });
