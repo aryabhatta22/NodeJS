@@ -59,6 +59,7 @@ const http = require('http');
 const url = require('url');
 const fs = require('fs');
 const replaceTemplate = require('./modules/replaceTemplate');
+// const slugify = require('slugify');
 
 //this is the top level code and needs to be called only once hence blocking code style is used
 const Overview = fs.readFileSync(`${__dirname}/Overview.html`, 'utf-8');
@@ -68,7 +69,12 @@ const Product = fs.readFileSync(`${__dirname}/Product.html`, 'utf-8');
 const data = fs.readFileSync(`${__dirname}/data.json`, 'utf-8');
 const dataObject = JSON.parse(data);
 
+// const slug = dataObject.map(el => slugify(el.productName, {lower: true}));
+// console.log(slug);
 
+// console.log(slugify('Fresh AVagados', {
+//   lower: true
+// }));
 
   //this will called at evrey routes 
 const server = http.createServer((req, res) => {
