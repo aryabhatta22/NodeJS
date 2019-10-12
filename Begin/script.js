@@ -104,8 +104,7 @@ const server = http.createServer((req, res) => {
   }
   else {
     res.writeHead(404, {
-      'Content-type': 'text/hmtl',
-      'my_own_header': 'hello world'
+      'Content-type': 'text/hmtl'
     });
     res.end("Page not found!!");
   }
