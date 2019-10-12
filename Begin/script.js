@@ -79,7 +79,6 @@ const Card = fs.readFileSync(`${__dirname}/Card.html`, 'utf-8');
 const Product = fs.readFileSync(`${__dirname}/Product.html`, 'utf-8');
 
 const data = fs.readFileSync(`${__dirname}/data.json`, 'utf-8');
-
 const dataObject = JSON.parse(data);
 
 
@@ -87,8 +86,9 @@ const dataObject = JSON.parse(data);
   //this will called at evrey routes 
 const server = http.createServer((req, res) => {
   // console.log(req.url);   // will provide url requested in each routes
+  // console.log(url.parse(req.url, true));  //this will parse the query part i.e. variables after ? in url eg. ../product?id=0 will give id
 
-  const pathname=req.url;
+  const {query, pathname } = url.parse(req.url, true);  //will parse the query & pathname from url.parse and store in variable with same name (called destructuring)
 
   //Home
   if(pathname==='/' || pathname=== '/overview') {
@@ -101,7 +101,11 @@ const server = http.createServer((req, res) => {
   //Product
   }
   else if(pathname === '/product') {
-    res.end('This is the Product page');
+    res.writeHead(200, { 'Content-type': 'text/html'});
+    const Curproduct = dataObject[query.id];
+    const output = replaceTemplate(Product, Curproduct);
+    // console.log(query);
+    res.end(output);
 
   //API
   }
