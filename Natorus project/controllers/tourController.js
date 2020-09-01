@@ -1,6 +1,29 @@
 const fs = require('fs')
 const toursData = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
 
+/* ----------------------- Middleware -----------------------*/
+
+exports.checkID = (req, res, next, val) => {
+  if(req.params.id*1 >toursData.length) {
+    return res.status(404).json( {
+      status: 'fail',
+      message: 'inavlid id'
+    })
+  }
+
+  next();
+};
+
+exports.checkBody = (req, res, next, val) => {
+  if(!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: "missing name or price"
+    })
+  }
+  next();
+};
+
 /* ----------------------- HTTP functions -----------------------*/
 
 exports.getAllTours = (req, res) => {
@@ -60,12 +83,7 @@ exports.getAllTours = (req, res) => {
   
   
   exports.UpdateTour = (req, res) => {
-    if(req.params.id*1 >toursData.length) {
-      return req.status(404).json( {
-        status: 'fail',
-        message: 'inavlid id'
-      })
-    }
+   
   
     res.status(200).json({
       status: 'sucess',
@@ -76,12 +94,7 @@ exports.getAllTours = (req, res) => {
   }
   
   exports.deleteTour = (req, res) => {
-    if(req.params.id*1 >toursData.length) {
-      return req.status(404).json( {
-        status: 'fail',
-        message: 'inavlid id'
-      })
-    }
+   
   
     res.status(204).json({
       status: 'sucess',
