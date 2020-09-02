@@ -9,8 +9,10 @@ const app = express();
 
 
 /* ----------------------- Middlewares -----------------------*/
-
-app.use(morgan('dev'));
+console.log(`In ${process.env.NODE_ENV} mode`);
+if(process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 // Middleware 1
 app.use(express.json());
