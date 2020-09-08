@@ -1,19 +1,6 @@
-const fs = require('fs')
-
-const toursData = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
+const Tour = require('./../models/tourModels')
 
 /* ----------------------- Middleware -----------------------*/
-
-exports.checkID = (req, res, next, val) => {
-  if(req.params.id*1 >toursData.length) {
-    return res.status(404).json( {
-      status: 'fail',
-      message: 'inavlid id'
-    })
-  }
-
-  next();
-};
 
 exports.checkBody = (req, res, next, val) => {
   if(!req.body.name || !req.body.price) {
@@ -32,10 +19,10 @@ exports.getAllTours = (req, res) => {
     res.status(200).json({
       status: 'success',
       requestedAt: req.reuestTime,
-      results: toursData.length,
-      data: {
-        tours: toursData
-      }
+      // results: toursData.length,
+      // data: {
+      //   tours: toursData
+      // }
     });
   };
   
@@ -50,35 +37,24 @@ exports.getAllTours = (req, res) => {
         message: 'inavlid id'
       })
     }
-    const tour = toursData.find(el => el.id === id)
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour
-      }
-    })
+    // const tour = toursData.find(el => el.id === id)
+    // res.status(200).json({
+    //   status: 'success',
+    //   data: {
+    //     tour
+    //   }
+    // })
   };
   
   
   exports.createTour = (req,res) => {
     
-    const newId = toursData[toursData.length -1].id+1;
-    const newTour = Object.assign({id: newId}, req.body);
-  
-    toursData.push(newTour);
-  
-    fs.writeFile(
-      `${__dirname}/dev-data/data/tours-simple.json`,
-      JSON.stringify(toursData),
-      err => {
-      res.send(201).json({
-        status: 'success',
-        data: {
-          tour: newTour
-        }
-      });
-    }
-    );
+    res.send(201).json({
+      status: 'success',
+      // data: {
+      //   tour: newTour
+      // }
+    });
   
   }
   
@@ -88,9 +64,9 @@ exports.getAllTours = (req, res) => {
   
     res.status(200).json({
       status: 'sucess',
-      data: {
-        tour: '<updated tour here...>'
-      }
+      // data: {
+      //   tour: '<updated tour here...>'
+      // }
     })
   }
   
