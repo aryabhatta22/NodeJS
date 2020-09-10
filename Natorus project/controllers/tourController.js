@@ -1,5 +1,12 @@
 const Tour = require('./../models/tourModels')
 
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingAverage,price';
+  req.query.fields = 'name,price,ratingAvergae,summary,difficulty';
+  next();
+}
+
 /* ----------------------- HTTP functions -----------------------*/
 
 exports.getAllTours = async (req, res) => {
@@ -24,9 +31,6 @@ exports.getAllTours = async (req, res) => {
 
             // 3) Sorting
 
-            /* we need to split the sorting fields by "," from the URL query string
-              Then we will seperate each field by space and join them as
-              .../tours?sort=price,rating     --->  sort(price rating)   for mongoose query   */
 
     if(req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ')
@@ -35,6 +39,30 @@ exports.getAllTours = async (req, res) => {
     } else {
       // Deafult sorting field
       query = query.sort('-createdAt')
+    }
+
+            // 4) Limiting
+
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');;
+      query = query.select(fields);
+    } else {
+      // mongoose uses __v in document but could return everything otherthan this by using '-' with __v
+      query = query.select('-__v')
+    }
+
+            // 3) Pagination
+
+    const page  = req.query.page * 1 || 1 ; 
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+
+    query = query.skip(skip).limit(limit);
+
+    
+    if(req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if(skip >= numTours) throw new Error('This page does not exist');
     }
 
 
