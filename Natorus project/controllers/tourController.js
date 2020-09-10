@@ -116,3 +116,45 @@ exports.deleteTour = async (req, res) => {
   }
 }
   
+exports.getTourStats = async (req, res) => {
+  try {
+
+    // An aggregate pipeline has multiple stages and each stage is an object
+
+    const stats = await Tour.aggregate([
+      {
+        $match: {ratingsAverage: {$gte: 4.5}}
+      },
+      {
+        $group: {
+          _id: '$difficulty',
+          // _id: null for aggregating whole document without any group
+          numTours: { $sum: 1},
+          numRatings: {$sum: '$ratingsQuantity'},
+          avgRating: { $avg: '$ratingsAverage'},
+          avgPrice: { $avg: '$price'},
+          minPrice: {$min: '$price'},
+          maxPrice: {$max: '$price'}
+        }
+      },
+      {
+        $sort: { avgPrice: 1}   /* 1 for ascending*/
+        }
+      // We can chain the methods repeatedly
+      // {
+      //   $match: { _id: {$ne: 'easy'}}
+      // }
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: {stats}
+    })
+    
+  } catch(err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err
+    })
+  }
+}
