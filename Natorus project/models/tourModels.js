@@ -52,7 +52,11 @@ const tourSchema = new mongoose.Schema({
     type: Date,
     default: Date.now()
   },
-  startDates: [Date]
+  startDates: [Date],
+  secretTour: {
+    type: Boolean,
+    default: false
+  }
 })
 
 // DOCUMENT MIDDLEWARE: runs before .save() & .create()
@@ -63,17 +67,34 @@ tourSchema.pre('save', function(next) {
   next();
 })
 
-tourSchema.pre('save', function(next) {
-  console.log('Will save the document....');
+// tourSchema.pre('save', function(next) {
+//   console.log('Will save the document....');
+//   next();
+// })
+
+
+// tourSchema.post('save', function(doc, next) {
+//   console.log(doc);     // this will be the document after creation
+//   next();
+// })
+
+// QUERY MIDDLEWARE: runs before or after a query
+
+tourSchema.pre(/^find/, function(next) {
+/* This example is to show only non VIP (say) users of our database.
+Thus we seta property secretToor in our database.
+This middleware will run and remove the users with secretTour as true.*/
+  this.find({ secretTour: {$ne: true}});
+  this.start = Date.now();
   next();
 })
 
-// DOCUMENT MIDDLEWARE: runs after .save() & .create()
-
-tourSchema.post('save', function(doc, next) {
-  console.log(doc);     // this will be the document after creation
-  next();
-})
+tourSchema.post(/^find/, function(doc, next) {
+  /* This example will run after the find query and will let us know how long it took to retunr the query*/
+    console.log(`Query took ${Date.now() - this.start} millisec.`)
+    next();
+  })
+  
 
 const Tour = mongoose.model('Tour', tourSchema)
 
