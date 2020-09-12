@@ -81,20 +81,23 @@ tourSchema.pre('save', function(next) {
 // QUERY MIDDLEWARE: runs before or after a query
 
 tourSchema.pre(/^find/, function(next) {
-/* This example is to show only non VIP (say) users of our database.
-Thus we seta property secretToor in our database.
-This middleware will run and remove the users with secretTour as true.*/
   this.find({ secretTour: {$ne: true}});
   this.start = Date.now();
   next();
 })
 
 tourSchema.post(/^find/, function(doc, next) {
-  /* This example will run after the find query and will let us know how long it took to retunr the query*/
     console.log(`Query took ${Date.now() - this.start} millisec.`)
     next();
   })
   
+// Aggregation MIDDLEWARE: runs before or after an aggregation pipeline
+
+tourSchema.pre('aggregate', function(next) {
+  this.pipeline().unshift({ $match: {secretTour: {$ne: true}}})
+  // console.log(this.pipeline());
+  next();
+})
 
 const Tour = mongoose.model('Tour', tourSchema)
 
