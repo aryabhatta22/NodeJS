@@ -1,6 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
 
+const AppError = require('./utils/appError')
+const globalErrorHandler =  require('./controllers/errorController')
 const tourRouter = require('./routes/tourRoutes')
 const userRouter = require('./routes/userRoutes')
 
@@ -14,18 +16,9 @@ if(process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Middleware 1
 app.use(express.json());
 
-// Middleware 2
-app.use((req, res, next) => {
-  console.log('Hello from the middleware');
-  next(); // madatory
-})
-
-// Middleware 3
 app.use((req, res, next)=> {
-  /* A middle ware to keep track at what time request occurs */
   req.reuestTime = new Date().toISOString();
   next(); // madatory
 })
@@ -35,5 +28,14 @@ app.use((req, res, next)=> {
 // Routers
 app.use('/api/v1/tours', tourRouter); // midlleware
 app.use('/api/v1/users', userRouter);
+
+// Unhandled Routes
+app.all('*', (req,res, next) => {
+  next(new AppError(`Cant find ${req.originalUrl} on this server`,
+                      404));
+})
+
+
+app.use(globalErrorHandler)
 
 module.exports = app;
