@@ -20,6 +20,7 @@ app.use(express.json());
 
 app.use((req, res, next)=> {
   req.reuestTime = new Date().toISOString();
+  // console.log(req.headers)
   next(); // madatory
 })
 
